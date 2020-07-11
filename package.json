@@ -1,0 +1,13 @@
+{
+	"name": "wk-kindeditor",
+	"version": "0.0.1",
+	"author": "蒋文",
+	"description": "网快的富文本编辑器",
+	"scripts": {
+		"start": "node server.js"
+	},
+	"dependencies": {
+		"connect": "latest",
+		"serve-static": "latest"
+	}
+}

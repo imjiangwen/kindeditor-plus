@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>富文本编辑器Kindeditor修改版测试</title>
+    <link rel="stylesheet" type="text/css" href="./kindeditor/plugins/multi_image/diyUpload/css/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="./kindeditor/plugins/multi_image/diyUpload/css/diyUpload.css">
+    <!-- layer -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/layer/3.1.1/mobile/need/layer.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="editor"></div>
+
+    <br>
+    <div>
+        <button type="button" onclick="getContent()">获取内容</button>
+    </div>
+    <br>
+    <div>
+        <button type="button" onclick="setContent('设置内容')">设置内容</button>
+    </div>
+
+    <!-- jquery -->
+    <script charset="utf-8" src="./kindeditor/jquery.min.js"></script>
+
+    <!-- layer -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/layer/3.1.1/layer.min.js"></script>
+
+    <!-- h5上传工具 -->
+    <script charset="utf-8" src="./kindeditor/plugins/multi_image/diyUpload/js/webuploader.html5only.min.js"></script>
+    <script charset="utf-8" src="./kindeditor/plugins/multi_image/diyUpload/js/diyUpload.js"></script>
+
+    <!-- 压缩html的工具，可以去除html中无用的空格换行等 -->
+    <script charset="utf-8" src="./kindeditor/htmlminifier.min.js"></script>
+
+    <!-- 编辑器 -->
+    <script charset="utf-8" src="./kindeditor/kindeditor-all.js"></script>
+    <script charset="utf-8" src="./kindeditor/lang/zh-CN.js"></script>
+
+
+    <script>
+        // 接口域名
+        var ctx = "http://jiangwen.frp.i847.cn";
+        // 上传获取凭证接口
+        var uploadApi = "/api/oss/token/uploading";
+        // 上传网络图片接口
+        var uploadWebApi = "/api/news/user/uploadWeb";
+        // 展示重定向接口
+        var redirectApi = "/api/oss/redirect?file=";
+        // base64转blob
+        function dataURLtoBlob(dataurl) {
+            var arr = dataurl.split(','),
+                mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]),
+                n = bstr.length,
+                u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+        // 创建编辑器
+        var editor = KindEditor.create("#editor", {
+            filterMode: false,
+            minWidth: 0,
+            minHeight: 0,
+            width: "100%",
+            ctx: ctx,
+            uploadApi: uploadApi,
+            redirectApi: redirectApi,
+            height: "300px",
+            items: ['source', '|', 'undo', 'redo', '|', 'preview', 'print', 'code',
+                'plainpaste', 'wordpaste', '|', 'justifyleft', 'justifycenter', 'justifyright',
+                'justifyfull', 'insertorderedlist', 'insertunorderedlist', 'indent', 'outdent', 'subscript',
+                'superscript', 'clearhtml', 'quickformat', '|', '', 'mobile', 'fullscreen', '/',
+                'formatblock', 'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold',
+                'italic', 'underline', 'strikethrough', 'lineheight', 'removeformat', '|', 'template', "multi_image",
+                'diy_video',
+                'table', 'hr', 'emoticons', 'baidumap', 'pagebreak',
+                'anchor', 'link', 'unlink'],
+            imageSizeLimit: "50MB",
+            imageUploadLimit: 25,
+            afterCreate: function () {
+                var editorObj = this;
+                var doc = editorObj.edit.doc;
+                $(doc.body).bind('paste', function (event) {
+                    setTimeout(function () {
+                        // 处理bug
+                        var useless = $(doc.body).find(".__kindeditor_paste__");
+                        if (useless) {
+                            useless.removeAttr("style");
+                            useless.removeClass("__kindeditor_paste__");
+                        }
+                        var imgs = $(doc.body).find("img");
+                        $.each(imgs, function (index, item) {
+                            // layer
+                            layerindex = layer.load(1, {
+                                shade: [0.3, '#fff'],
+                                content: '转存中',
+                                success: function (layero) {
+                                    layero.find('.layui-layer-content').css({
+                                        'padding-top': '39px',
+                                        'width': '120px',
+                                        'margin-left': '-60px'
+                                    });
+                                }
+                            });
+                            var _that = $(this);
+                            var imgSrc = decodeURIComponent(_that.attr("src"));
+                            if (imgSrc.indexOf("file://") > -1) {
+                                layer.close(layerindex);
+                            } else if (imgSrc.indexOf("data:") > -1) {
+                                var blob = dataURLtoBlob(imgSrc);
+                                // 上传粘贴板中的截图到服务器
+                                $.get(ctx + uploadApi, { isPrivate: false, keepSrcFileName: false }, function (res) {
+                                    var form = document.imgForm;
+                                    var formData = new FormData(form);
+                                    for (var key in res) {
+                                        formData.append(key, res[key]);
+                                    }
+                                    formData.append("file", blob);
+                                    $.ajax({
+                                        type: "POST",
+                                        url: res.action,
+                                        data: formData,
+                                        dataType: "json",
+                                        // async: false,
+                                        processData: false,
+                                        contentType: false,
+                                        success: function (res) {
+                                            layer.close(layerindex);
+                                            if (res.success) {
+                                                _that.attr('src', ctx + redirectApi + res.fileUri);
+                                                _that.attr('data-ke-src', ctx + redirectApi + res.fileUri);
+                                                _that.attr('alt', res.fileName);
+                                            }
+                                        },
+                                        fail: function () {
+                                            layer.close(layerindex);
+                                        }
+                                    });
+                                });
+                            } else if (imgSrc.indexOf("/pub/") === -1) {
+                                // ajax异步上传其他网络图片
+                                $.ajax({
+                                    type: "POST",
+                                    url: ctx + uploadWebApi,
+                                    data: JSON.stringify({ url: imgSrc }),
+                                    dataType: "json",
+                                    // async: false,
+                                    processData: false,
+                                    contentType: "application/json;charset=UTF-8",
+                                    success: function (res) {
+                                        layer.close(layerindex);
+                                        // 重置图片
+                                        _that.attr('src', res.url);
+                                        _that.attr('data-ke-src', res.url);
+                                        _that.attr('alt', res.name);
+                                    },
+                                    fail: function () {
+                                        layer.close(layerindex);
+                                    }
+                                });
+                            } else {
+                                // 本站网络图片不处理
+                                layer.close(layerindex);
+                            }
+                        });
+                    }, 5);
+                });
+            },
+
+        });
+
+        function getContent(){
+            var htmlMinify = require('html-minifier').minify;
+            var newContent = htmlMinify(editor.html(), {
+                collapseWhitespace: true, conservativeCollapse : true
+            });
+            alert(newContent);
+        }
+
+        function setContent(content){
+            editor.html(content);
+        }
+
+    </script>
+</body>
+
+</html>
