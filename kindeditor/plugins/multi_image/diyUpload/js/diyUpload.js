@@ -147,7 +147,7 @@
 	function getOption(objId) {
 		/*
 		*	配置文件同webUploader一致,这里只给出默认配置.
-		*	具体参照:http://fex.baidu.com/webuploader/doc/index.html
+		*	具体参照://fex.baidu.com/webuploader/doc/index.html
 		*/
 		return {
 			//按钮容器;

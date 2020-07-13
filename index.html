@@ -1,26 +1,54 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="utf-8">
-    <title>富文本编辑器Kindeditor修改版测试</title>
-    <link rel="stylesheet" type="text/css" href="./kindeditor/plugins/multi_image/diyUpload/css/webuploader.css">
-    <link rel="stylesheet" type="text/css" href="./kindeditor/plugins/multi_image/diyUpload/css/diyUpload.css">
-    <!-- layer -->
-    <link href="https://cdn.bootcdn.net/ajax/libs/layer/3.1.1/mobile/need/layer.min.css" rel="stylesheet">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="keywords" content="kindeditor编辑器升级版，Kindeditor-plus">
+        <meta name="description" content="富文本编辑器Kindeditor升级版Kindeditor-plus体验。">
+        <title>富文本编辑器Kindeditor升级版Kindeditor-plus体验</title>
+        <link rel="stylesheet" type="text/css" href="./kindeditor/plugins/multi_image/diyUpload/css/webuploader.css">
+        <link rel="stylesheet" type="text/css" href="./kindeditor/plugins/multi_image/diyUpload/css/diyUpload.css">
+        <!-- layer -->
+        <link href="https://cdn.bootcdn.net/ajax/libs/layer/3.1.1/mobile/need/layer.min.css" rel="stylesheet">
+        <link rel="icon" href="https://i847.cn/data/uploads/20200312/1367f8cad9023494e194977778f804d5.ico">
 </head>
 
-<body>
+<body style="text-align: center;">
 
-    <div id="editor"></div>
+    <div style="margin: 0px auto; max-width: 960px;">
+        <div id="editor"></div>
+        <br>
+        <div>
+            <button type="button" onclick="getContent()">获取内容</button>
+            <span>|</span>
+            <button type="button" onclick="setContent('这是设置的内容')">设置内容</button>
+        </div>
+        <div style="margin-top: 5px;">
+            <a target="_blank" href="https://gitee.com/mosmos_admin/kindeditor-plus">码云</a>
+            <span>|</span>
+            <a target="_blank" href="https://github.com/imjiangwen/kindeditor-plus">GitHub</a>
+            <span>|</span>
+            <a target="_blank" href="https://i847.cn/article/3032.html">文思齐远</a>
+        </div>
 
-    <br>
-    <div>
-        <button type="button" onclick="getContent()">获取内容</button>
-    </div>
-    <br>
-    <div>
-        <button type="button" onclick="setContent('设置内容')">设置内容</button>
+        <!-- 广告 -->
+        <div style="margin-top: 15px;">
+            <div>路过的朋友帮忙点点看看下面的：</div>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-4066202055044741"
+                data-ad-slot="9943981319"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        <!-- /广告 -->
+
     </div>
 
     <!-- jquery -->
@@ -43,7 +71,7 @@
 
     <script>
         // 接口域名
-        var ctx = "http://jiangwen.frp.i847.cn";
+        var ctx = "https://org-admin.he800.com";
         // 上传获取凭证接口
         var uploadApi = "/api/oss/token/uploading";
         // 上传网络图片接口
@@ -169,7 +197,7 @@
                                 layer.close(layerindex);
                             }
                         });
-                    }, 5);
+                    }, 10);
                 });
             },
 
